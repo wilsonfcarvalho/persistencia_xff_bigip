@@ -1,0 +1,20 @@
+when HTTP_REQUEST {
+    if {[HTTP::header exists X-Forwarded-For]}{
+      set xff [HTTP::header values "X-Forwarded-For"]
+      persist uie $xff 
+    log local0. "X-Forwarded-For: $xff"
+    }
+    
+    if {[HTTP::header exists True-Client-IP]}{
+      set tcip [HTTP::header "True-Client-IP"]
+      persist uie $tcip
+    log local0. "True-Client-IP: $tcip"
+    }
+    return
+  }
+  
+when SERVER_CONNECTED { 
+
+log local0. "connected to pool member: [LB::server addr]" 
+
+}
