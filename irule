@@ -1,25 +1,28 @@
 when HTTP_REQUEST {
- ## Verifica se o cabeçalho  X-Forwarded-For existe, caso sim, define a variável xff e define a persistência a partir dessa variável
- 
-       if {[HTTP::header exists X-Forwarded-For]}{
-      set xff [HTTP::header values "X-Forwarded-For"]
-      persist uie $xff 
-    log local0. "X-Forwarded-For: $xff"
-    }
-    
- ## Verifica se o cabeçalho True-Client-IP, caso sim, define a variável tcip e define a persistência a partir dessa variável
- 
+   
+## Verifica se o cabeçalho  X-Forwarded-For existe, caso sim, define a variável xff e define a persistência a partir dessa variável
     if {[HTTP::header exists True-Client-IP]}{
       set tcip [HTTP::header "True-Client-IP"]
       persist uie $tcip
     log local0. "True-Client-IP: $tcip"
+    
+## Verifica se o cabeçalho True-Client-IP, caso sim, define a variável tcip e define a persistência a partir dessa variável
+    } elseif { [HTTP::header exists X-Forwarded-For]}{
+      set xff [HTTP::header values "X-Forwarded-For"]
+      persist uie $xff 
+    log local0. "X-Forwarded-For: $xff"
+    
+    } else {
+
+## Caso não exista nenhum dos dois cabeçalhos acima, faça a persistência por IP de origem
+      persist uie [IP::client_addr] 
     }
+    
     return
   }
   
 when SERVER_CONNECTED { 
- ## Gera log do servidor que foi escolhido pelo algoritmo de balanceamento 
 
-   log local0. "connected to pool member: [LB::server addr]" 
+log local0. "connected to pool member: [LB::server addr]" 
 
 }
