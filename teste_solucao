@@ -1,0 +1,18 @@
+Para testar a solução, é necessário simular uma requisição para o Virtual Server onde a irule está associada, contendo o cabeçalho
+"X-Forwarded-For" ou mesmo o "True-Client-IP". Para essa simulação, vamos utilizar o comando Linux "curl", esse comando permite além de
+simular uma requisição HTTP ou HTTPS, permite uma série de customizações, como por exemplo a inclusão de um cabeçalho e um valor associado,
+para esse exemplo, vamos inserir o cabaçalho "X-Forwarded-For" com o valor "1.1.1.1", e a URL requisitada é o IP do Virtual Server (10.1.10.124).
+
+
+curl -H "X-Forwarded-For: 1.1.1.1" http://10.1.10.124
+
+O parâmetro "-H" faz é utilizado para a inserção do Header definido a seguir no formado "nome:valor"
+
+Como pré-requisito para a realização desse teste, é necessário que o cliente (maquina Linux), com conectividade ao Virtual Server em questão.
+
+Do lado do Bigip, para verificar a efetividade da iRule, vamos utilizar o comando "tail -f /var/log/ltm", que mostra os logs localizados na
+pasta /ltm em tempo real, esse é o local definido na iRule para a geração dos logs. A saída do comando curl descrito acima, seria algo 
+parecido com:
+
+Rule /Common/nome_da_irule <HTTP_REQUEST>: X-Forwarded-For: 1.1.1.1
+Rule /Common/nome_da_irule <SERVER_CONNECTED>: connected to pool member: ip_do_servidor
